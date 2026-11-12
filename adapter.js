@@ -57,12 +57,19 @@
     else showGate();
   }
   sb.auth.onAuthStateChange((ev, session)=>{ if (ev === "SIGNED_IN" && session) { gate.hidden = true; document.getElementById("who").textContent = session.user.email; resolveDb(db); } });
+  const msg = t => document.getElementById("login-msg").textContent = t;
+  const traduire = m => /invalid login/i.test(m) ? "Adresse ou mot de passe incorrect." : /rate limit|limit exceeded/i.test(m) ? "Trop d'e-mails envoyés pour l'instant : connectez-vous avec votre mot de passe." : m;
   document.getElementById("login-form").addEventListener("submit", async e=>{
-    e.preventDefault(); const email = document.getElementById("login-email").value.trim(); if (!email) return;
-    const btn = e.submitter; if (btn) btn.disabled = true;
-    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + location.pathname, shouldCreateUser: true } });
-    if (btn) btn.disabled = false;
-    document.getElementById("login-msg").textContent = error ? "Envoi impossible : " + error.message : "Lien envoyé. Ouvrez l'e-mail sur cet appareil et touchez le lien.";
+    e.preventDefault(); const email = document.getElementById("login-email").value.trim(), pass = document.getElementById("login-pass").value;
+    if (!email) return; if (!pass) { msg("Entrez votre mot de passe, ou demandez un lien par e-mail."); return; }
+    const btn = document.getElementById("login-go"); btn.disabled = true; msg("Connexion…");
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    btn.disabled = false; msg(error ? traduire(error.message) : "");
+  });
+  document.getElementById("login-magic").addEventListener("click", async ()=>{
+    const email = document.getElementById("login-email").value.trim(); if (!email) { msg("Entrez d'abord votre adresse e-mail."); return; }
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + location.pathname, shouldCreateUser: false } });
+    msg(error ? traduire(error.message) : "Lien envoyé. Ouvrez l'e-mail sur cet appareil et touchez le lien.");
   });
   document.getElementById("logout").addEventListener("click", async ()=>{ await sb.auth.signOut(); try { Object.keys(localStorage).filter(k=>k.startsWith("carnet-cache-")).forEach(k=>localStorage.removeItem(k)) } catch(e){} location.reload(); });
   start();

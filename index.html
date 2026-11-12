@@ -21,9 +21,11 @@ body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display
 </head><body>
 <div id="login" hidden><form id="login-form">
   <h1>Carnet d'annonces</h1>
-  <p>Entrez votre adresse e-mail : vous recevrez un lien de connexion, sans mot de passe.</p>
-  <input type="email" id="login-email" required autocomplete="email" placeholder="vous@exemple.com">
-  <button class="btn primary" type="submit">Recevoir le lien</button>
+  <p>Connectez-vous avec votre adresse e-mail et votre mot de passe.</p>
+  <input type="email" id="login-email" required autocomplete="username" placeholder="vous@exemple.com">
+  <input type="password" id="login-pass" autocomplete="current-password" placeholder="Mot de passe">
+  <button class="btn primary" type="submit" id="login-go">Se connecter</button>
+  <button class="btn ghost" type="button" id="login-magic">Recevoir plutôt un lien par e-mail</button>
   <p id="login-msg" role="status"></p>
 </form></div>
 <link rel="preconnect" href="https://fonts.googleapis.com">
