@@ -15,7 +15,7 @@ body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display
 #login form{width:min(380px,100%);display:grid;gap:12px;background:var(--surface,#fff);border:1px solid var(--line,#dcdfe6);border-radius:12px;padding:22px}
 #login h1{margin:0;font-size:20px}#login p{margin:0;color:var(--muted,#5d6577);font-size:14px}
 #login input{padding:10px 12px;border-radius:8px;border:1px solid var(--line,#dcdfe6);font:inherit;background:var(--bg,#f5f6f8);color:inherit}
-#who{font-weight:500;font-size:12px;color:var(--muted,#5d6577)}
+#who{font-weight:500;font-size:12px;color:var(--muted,#5d6577)}#who:not(:empty)::after{content:" · "}
 @media (max-width:820px){#who{display:none}}
 </style>
 </head><body>
@@ -79,6 +79,7 @@ button{cursor:pointer}
   display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .brand{font-weight:700;font-size:17px;letter-spacing:-.01em;margin-right:auto}
 .brand small{display:block;font-weight:500;font-size:12px;color:var(--muted);letter-spacing:0}
+.theme{font-size:13px;padding:6px 10px}
 .city{display:flex;background:var(--sunk);border-radius:999px;padding:3px}
 .city button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font-weight:600;font-size:14px;color:var(--muted)}
 .city button[aria-pressed="true"]{background:var(--surface);color:var(--accent);box-shadow:0 1px 2px rgb(0 0 0 / .12)}
@@ -214,7 +215,8 @@ details.all summary{cursor:pointer;font-weight:600}
 <div class="app" id="app">
   <header class="top">
     <div class="brand">Carnet d'annonces<small id="sub">Suivi des biens repérés</small></div>
-    <button class="btn ghost" id="logout" title="Se déconnecter"><span id="who"></span> · Quitter</button>
+    <button class="btn ghost theme" id="theme" title="Changer le thème">◐ Auto</button>
+    <button class="btn ghost" id="logout" title="Se déconnecter"><span id="who"></span>Quitter</button>
     <div class="city" role="group" aria-label="Recherche">
       <button id="c-bxl" aria-pressed="true">Bruxelles</button>
       <button id="c-tng" aria-pressed="false">Tanger</button>
@@ -292,6 +294,12 @@ const st={city:"bxl",ann:{bxl:new Map(),tng:new Map()},suivi:{bxl:new Map(),tng:
   sel:null,f:{q:"",groups:new Set(),lieu:"",ch:"",pmax:"",smin:"",nmin:"",mine:"",peb:new Set(),prio:false,fav:false,com:false,clos:false},sort:"score",db:null,err:null};
 const $=id=>document.getElementById(id);
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const THEMES=[["auto","◐ Auto"],["light","☀ Clair"],["dark","☾ Sombre"]];
+function applyTheme(t){const r=document.documentElement;if(t==="light"||t==="dark")r.setAttribute("data-theme",t);else r.removeAttribute("data-theme");
+  const b=document.getElementById("theme");if(b)b.textContent=(THEMES.find(x=>x[0]===t)||THEMES[0])[1];
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=(t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches))?"#1a1e27":"#ffffff";}
+applyTheme((store.get("carnet-theme"))||"auto");
+document.getElementById("theme").onclick=()=>{const cur=store.get("carnet-theme")||"auto";const i=THEMES.findIndex(x=>x[0]===cur);const nx=THEMES[(i+1)%THEMES.length][0];store.set("carnet-theme",nx);applyTheme(nx)};
 (function restore(){const p=store.get("carnet-prefs");if(p){if(p.city in CITY)st.city=p.city;if(p.sort)st.sort=p.sort;}})();
 const savePrefs=()=>store.set("carnet-prefs",{city:st.city,sort:st.sort});
 

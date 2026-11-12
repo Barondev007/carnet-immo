@@ -1,5 +1,5 @@
 // Garde l'appli disponible hors ligne (dernière version chargée). Les données sont en cache dans l'appli.
-const CACHE = "carnet-v1";
+const CACHE = "carnet-v2";
 const SHELL = ["./", "index.html", "config.js", "adapter.js", "vendor/supabase.js", "manifest.json", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
